@@ -30,6 +30,7 @@ set(SOURCES
         Shell.cpp
         vault/Vault.cpp
         crypto/Crypto.cpp
+        utils/Base64.cpp
 )
 
 add_executable(VaultShell
