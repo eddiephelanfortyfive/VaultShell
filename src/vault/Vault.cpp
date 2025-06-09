@@ -26,7 +26,6 @@ bool Vault::load_or_initialize() {
     if (std::filesystem::exists(VAULT_FILE)) {
         return load_from_file();
     } else {
-        // No vault exists — initialize it
         std::string salt = Crypto::generate_salt();
 
         std::cout << "Set a master password: ";
@@ -66,7 +65,6 @@ bool Vault::load_or_initialize() {
         file << j.dump(4);
         file.close();
 
-        // Store runtime data
         salt_value = salt;
         kek = enc_kek_base64;
         nonce = nonce_base64;
@@ -106,11 +104,9 @@ bool Vault::unlock(const std::string& password) {
     kek = crypto_info.at("enc_kek").get<std::string>();
     nonce = crypto_info.at("nonce").get<std::string>();
 
-    // Derive master key
     auto master_key_bytes = Crypto::derive_master_key(password, salt_value);
     auto master_key_base64 = Base64::encode(master_key_bytes);
 
-    // Try decrypting KEK with this master key
     if (!Crypto::decrypt_kek_with_master(master_key_base64, kek, nonce)) {
         std::cerr << "Failed to decrypt KEK. Wrong password?\n";
         return false;
@@ -118,7 +114,6 @@ bool Vault::unlock(const std::string& password) {
 
     master_password = password;
 
-    // Load encrypted entries
     encrypted_entries.clear();
     for (auto it = j["entries"].begin(); it != j["entries"].end(); ++it) {
         encrypted_entries[it.key()] = it.value().get<std::string>();
@@ -140,7 +135,7 @@ bool Vault::change_password(const std::string& new_password) {
         std::cerr << "Failed to decrypt KEK with old master key.\n";
         return false;
     }
-    std::string decrypted_kek = kek;  // kek is the decrypted KEK now
+    std::string decrypted_kek = kek; 
 
     std::string new_salt = Crypto::generate_salt();
     auto new_master_key_bytes = Crypto::derive_master_key(new_password, new_salt);
