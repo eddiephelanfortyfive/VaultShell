@@ -15,7 +15,8 @@ const std::string VAULT_FILE = "vault.json";
 
 std::vector<std::string> Vault::list_keys() {
     std::vector<std::string> keys;
-    for (const auto& pair : encrypted_entries) {
+    keys.reserve(encrypted_entries.size());
+for (const auto& pair : encrypted_entries) {
         keys.push_back(pair.first);
     }
     return keys;
@@ -132,37 +133,30 @@ bool Vault::change_password(const std::string& new_password) {
         return false;
     }
 
-    // Derive old master key
     auto old_master_key_bytes = Crypto::derive_master_key(master_password, salt_value);
     auto old_master_key_base64 = Base64::encode(old_master_key_bytes);
 
-    // Decrypt KEK using old master key
-    std::string decrypted_kek;
     if (!Crypto::decrypt_kek_with_master(old_master_key_base64, kek, nonce)) {
         std::cerr << "Failed to decrypt KEK with old master key.\n";
         return false;
     }
-    decrypted_kek = kek;  // kek is the decrypted KEK now
+    std::string decrypted_kek = kek;  // kek is the decrypted KEK now
 
-    // Generate new salt for the new password
     std::string new_salt = Crypto::generate_salt();
     auto new_master_key_bytes = Crypto::derive_master_key(new_password, new_salt);
     auto new_master_key_base64 = Base64::encode(new_master_key_bytes);
 
-    // Encrypt KEK with new master key
     std::string new_enc_kek, new_nonce;
     if (!Crypto::encrypt_kek_with_master(new_master_key_base64, new_enc_kek, new_nonce)) {
         std::cerr << "Failed to encrypt KEK with new master key.\n";
         return false;
     }
 
-    // Update stored values
     salt_value = new_salt;
     kek = new_enc_kek;
     nonce = new_nonce;
     master_password = new_password;
 
-    // Save updated vault
     return save_to_file();
 }
 
@@ -172,14 +166,12 @@ void Vault::set_entry(const std::string& key, const std::string& value) {
         return;
     }
 
-    // Encrypt the value using KEK
     std::string encrypted_value, nonce_val;
     if (!Crypto::encrypt_with_kek(Base64::decode(kek), value, encrypted_value, nonce_val)) {
         std::cerr << "Failed to encrypt entry value.\n";
         return;
     }
 
-    // Store encrypted value with nonce (can be stored together or separately; here we combine)
     std::string combined = nonce_val + ":" + encrypted_value;
     encrypted_entries[key] = combined;
 }
@@ -196,7 +188,6 @@ std::string Vault::get_entry(const std::string& key) {
         return {};
     }
 
-    // Split stored string into nonce and encrypted value
     auto pos = it->second.find(':');
     if (pos == std::string::npos) {
         std::cerr << "Corrupted entry format.\n";
@@ -313,13 +304,11 @@ bool Vault::change_entry_password(const std::string& key, const std::string& new
         return false;
     }
 
-    // Check if entry exists
     if (encrypted_entries.find(key) == encrypted_entries.end()) {
         std::cerr << "Entry '" << key << "' not found.\n";
         return false;
     }
 
-    // Use existing KEK to encrypt the new password
     std::string encrypted_value, nonce_val;
     if (!Crypto::encrypt_with_kek(Base64::decode(kek), new_password, encrypted_value, nonce_val)) {
         std::cerr << "Failed to encrypt new password for entry.\n";
