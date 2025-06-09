@@ -3,7 +3,7 @@
 //
 #include <iostream>
 #include "Shell.h"
-#include "src/vault/Vault.h"
+#include "vault/Vault.h"
 
 
 int main() {
@@ -15,8 +15,7 @@ int main() {
             return 1;
         }
 
-        Shell shell;
-        shell.run();
+        Shell::run();
 
     } catch (const std::exception& ex) {
         std::cerr << "⚠️ Error: " << ex.what() << "⚠️"<< std::endl;

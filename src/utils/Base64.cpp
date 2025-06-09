@@ -1,7 +1,7 @@
 //
 // Created by eddie phelan on 09/06/2025.
 //
-#include "Base64.h"
+#include "utils/Base64.h"
 #include <openssl/bio.h>
 #include <openssl/evp.h>
 #include <openssl/buffer.h>
@@ -9,12 +9,11 @@
 
 namespace Base64 {
 
-    std::string base64_encode(const std::vector<uint8_t>& data) {
-        BIO* bio, * b64;
+    std::string encode(const std::vector<uint8_t>& data) {
         BUF_MEM* bufferPtr;
 
-        b64 = BIO_new(BIO_f_base64());
-        bio = BIO_new(BIO_s_mem());
+        BIO *b64 = BIO_new(BIO_f_base64());
+        BIO *bio = BIO_new(BIO_s_mem());
         bio = BIO_push(b64, bio);
 
         BIO_set_flags(bio, BIO_FLAGS_BASE64_NO_NL);  // No newlines
@@ -27,13 +26,12 @@ namespace Base64 {
         return result;
     }
 
-    std::vector<uint8_t> base64_decode(const std::string& input) {
-        BIO* bio, * b64;
-        int maxLen = static_cast<int>(input.length());
+    std::vector<uint8_t> decode(const std::string& input) {
+        const int maxLen = static_cast<int>(input.length());
         std::vector<uint8_t> buffer(maxLen);
 
-        b64 = BIO_new(BIO_f_base64());
-        bio = BIO_new_mem_buf(input.data(), maxLen);
+        BIO *b64 = BIO_new(BIO_f_base64());
+        BIO *bio = BIO_new_mem_buf(input.data(), maxLen);
         bio = BIO_push(b64, bio);
 
         BIO_set_flags(bio, BIO_FLAGS_BASE64_NO_NL);  // No newlines

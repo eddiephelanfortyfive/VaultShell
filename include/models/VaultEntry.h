@@ -17,8 +17,8 @@ public:
     std::string updated_at;
 
     VaultEntry() = default;
-    VaultEntry(const std::string& n, const std::string& val, const std::string& nonce_val,
-               const std::string& created, const std::string& updated);
+    VaultEntry(std::string  n, std::string  val, std::string  nonce_val,
+               std::string  created, std::string  updated);
 
     [[nodiscard]] nlohmann::json to_json() const;
     static VaultEntry from_json(const nlohmann::json& j);

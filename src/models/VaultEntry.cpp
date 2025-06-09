@@ -1,11 +1,13 @@
 //
 // Created by eddie phelan on 09/06/2025.
 //
-#include "VaultEntry.h"
+#include "models/VaultEntry.h"
+
+#include <utility>
 #include "external/nlohmann/json.hpp"
-VaultEntry::VaultEntry(const std::string &n, const std::string &val, const std::string &nonce_val,
-                       const std::string &created, const std::string &updated)
-    : name(n), value(val), nonce(nonce_val), created_at(created), updated_at(updated) {}
+VaultEntry::VaultEntry(std::string n, std::string val, std::string nonce_val,
+                       std::string created, std::string updated)
+    : name(std::move(n)), value(std::move(val)), nonce(std::move(nonce_val)), created_at(std::move(created)), updated_at(std::move(updated)) {}
 
 nlohmann::json VaultEntry::to_json() const {
     return {
