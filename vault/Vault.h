@@ -4,5 +4,6 @@
 
 #ifndef VAULT_H
 #define VAULT_H
-
-#endif //VAULT_H
+void Vault();
+void load_or_initialize();
+#endif

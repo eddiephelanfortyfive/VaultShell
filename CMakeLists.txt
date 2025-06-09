@@ -5,14 +5,23 @@ set(CMAKE_CXX_STANDARD 20)
 
 include_directories(include)
 
-add_executable(VaultShell
+set(HEADERS
+        Shell.h
+        vault/Vault.h
+        utils/Base64.h
+        models/KEKInfo.h
+        models/Vault_Entry.h
+)
+
+set(SOURCES
         main.cpp
-        shell.h
-        shell.cpp
-        vault/vault.h
-        vault/vault.cpp
-        crypto/crypto.h
-        crypto/crypto.cpp
-        models/vault_entry.h
-        models/kek_info.h
+        Shell.cpp
+        vault/Vault.cpp
+        crypto/Crypto.cpp
+)
+
+
+add_executable(VaultShell
+        ${HEADERS}
+        ${SOURCES}
 )
