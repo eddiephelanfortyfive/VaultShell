@@ -21,7 +21,7 @@ set(HEADERS
         vault/Vault.h
         utils/Base64.h
         models/KEKInfo.h
-        models/Vault_Entry.h
+        models/VaultEntry.h
         crypto/Crypto.h
 )
 
@@ -31,6 +31,7 @@ set(SOURCES
         vault/Vault.cpp
         crypto/Crypto.cpp
         utils/Base64.cpp
+        models/VaultEntry.cpp
 )
 
 add_executable(VaultShell
