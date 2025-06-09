@@ -31,3 +31,14 @@ sudo mv vaultShell /usr/local/bin/vaultShell
 ```bash
 vaultShell
 ```
+
+### Available commands in the Vault Shell
+| Command         | Description                                 |
+|-----------------|---------------------------------------------|
+| `ls`            | List all entries in the vault                |
+| `add <name>`    | Add a new entry                              |
+| `delete <name>` | Delete an existing entry (if it exists)      |
+| `change`        | Change the master password                   |
+| `change <name>` | Change the password for an entry              |
+| `help`          | Display this help menu                       |
+| `exit`          | Exit the vault shell                         |
