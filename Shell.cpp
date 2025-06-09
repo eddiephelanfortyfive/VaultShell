@@ -1,10 +1,9 @@
-//
 // Created by eddie phelan on 08/06/2025.
-//
 
 #include "Shell.h"
 #include "vault/Vault.h"
-
+#include "utils/colours.h"
+#include <iomanip>
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -12,33 +11,33 @@
 bool Shell::running = true;
 
 void Shell::run() {
-    std::cout << "Welcome to the Vault Shell.\n";
+    print_info("Welcome to the Vault Shell.");
 
     while (true) {
-        std::cout << "Enter master password: ";
+        print_plain("Enter master password: ");
         std::string password;
         std::getline(std::cin, password);
 
         if (password.empty()) {
-            std::cout << "Password cannot be empty. Try again.\n";
+            print_error("Password cannot be empty. Try again.");
             continue;
         }
 
         if (Vault::unlock(password)) {
-            std::cout << "Vault unlocked successfully.\n";
+            print_success("Vault unlocked successfully.");
             break;
         } else {
-            std::cout << "Incorrect password. Try again or press Ctrl+C to exit.\n";
+            print_error("Incorrect password. Try again or press Ctrl+C to exit.");
         }
     }
 
-    std::cout << "Type 'help' for a list of commands.\n";
+    print_info("Type 'help' for a list of commands.");
 
     while (running) {
-        std::cout << "\033[36m" << "vaultShell> " << "\033[0m";
+        std::cout << COLOR_PROMPT << "vaultShell> " << COLOR_RESET;
         std::string line;
         if (!std::getline(std::cin, line)) {
-            std::cout << "\nExiting vaultShell.\n";
+            print_success("\nExiting vaultShell.");
             break;
         }
 
@@ -65,86 +64,133 @@ void Shell::process_command(const std::string& command) {
         cmd_change_password();
     } else if (cmd == "change" && !arg.empty()) {
         cmd_change_entry_password(arg);
-    } else if (cmd.empty()) {
-        // Ignore empty command
     } else {
-        std::cout << "Unknown command: " << cmd << "\n";
-        std::cout << "Type 'help' for a list of commands.\n";
+        print_error("Unknown command: " + cmd);
+        print_info("Type 'help' for a list of commands.");
     }
 }
-
-
 
 void Shell::cmd_ls() {
     auto keys = Vault::list_keys();
     if (keys.empty()) {
-        std::cout << "Vault is empty.\n";
+        print_error("Vault is empty.");
         return;
     }
 
+    // Define column widths
+    const int name_width = 22;
+    const int user_width = 30;
+    const int pass_width = 30;
+
+    std::string line = std::string(82, '=');
+    print_plain(line);
+    std::ostringstream header;
+    header << std::left
+           << std::setw(name_width) << "Name" << " | "
+           << std::setw(user_width) << "Username" << " | "
+           << std::setw(pass_width) << "Password";
+    print_plain(header.str());
+    print_plain(line);
+
     for (const auto& key : keys) {
-        std::string password = Vault::get_entry(key);
-        std::cout << key << ": " << password << "\n";
+        std::string value = Vault::get_entry(key);
+        std::string username, password;
+
+        size_t delim_pos = value.find(':');
+        if (delim_pos != std::string::npos) {
+            username = value.substr(0, delim_pos);
+            password = value.substr(delim_pos + 1);
+        } else {
+            username = "(unknown)";
+            password = "(unknown)";
+        }
+
+        std::ostringstream oss;
+        oss << std::left
+            << std::setw(name_width) << key << " | "
+            << std::setw(user_width) << username << " | "
+            << std::setw(pass_width) << password;
+
+        print_plain(oss.str());
     }
+
+    print_plain(line);
 }
 
 
-void Shell::cmd_add(const std::string& key) {
-    if (key.empty()) {
-        std::cout << "Usage: add <site/website>\n";
+
+void Shell::cmd_add(const std::string& name) {
+    if (name.empty()) {
+        print_info("Usage: add <site/website>");
         return;
     }
 
-    std::string value;
-    std::cout << "Enter password for '" << key << "': ";
-    std::getline(std::cin, value);
+    std::string username, password;
 
-    if (value.empty()) {
-        std::cout << "Password cannot be empty.\n";
+    std::cout << "Enter username for '" << name << "': ";
+    std::getline(std::cin, username);
+
+    if (username.empty()) {
+        print_error("Username cannot be empty.");
         return;
     }
 
-    Vault::set_entry(key, value);
+    std::cout << "Enter password for '" << name << "': ";
+    std::getline(std::cin, password);
+
+    if (password.empty()) {
+        print_error("Password cannot be empty.");
+        return;
+    }
+
+    // Store as "username:password" (or you can JSON structure this if you want richer storage)
+    std::string value = username + ":" + password;
+
+    Vault::set_entry(name, value);
     if (!Vault::save()) {
-        std::cout << "Failed to save vault.\n";
+        print_error("Failed to save vault.");
         return;
     }
-    std::cout << "Entry '" << key << "' added.\n";
+    print_success("Entry '" + name + "' added.");
 }
 
 
 void Shell::cmd_delete(const std::string& key) {
     if (key.empty()) {
-        std::cout << "Usage: delete <site/website>\n";
+        print_info("Usage: delete <site/website>");
+        return;
+    }
+
+    if (!Vault::has_entry(key)) {
+        print_error("No such entry found: '" + key + "'.");
         return;
     }
 
     Vault::delete_entry(key);
     if (!Vault::save()) {
-        std::cout << "Failed to save vault.\n";
+        print_error("Failed to save vault.");
         return;
     }
-    std::cout << "Entry '" << key << "' deleted.\n";
+
+    print_success("Entry '" + key + "' deleted.");
 }
 
 
 void Shell::cmd_help() {
-    std::cout << "Available commands:\n";
-    std::cout << "  ls      - List all entries\n";
-    std::cout << "  add     - Add a new entry\n";
-    std::cout << "  delete  - Delete an entry\n";
-    std::cout << "  help    - Show this help message\n";
-    std::cout << "  cmaster    - Changing master password\n";
-    std::cout << "  centry    - Changing entry password\n";
-    std::cout << "  exit    - Exit the shell\n";
+    print_plain("Available commands:");
+    print_plain("  ls               - List all entries");
+    print_plain("  add <name>       - Add a new entry");
+    print_plain("  delete <name>    - Delete an entry");
+    print_plain("  help             - Show this help message");
+    print_plain("  change           - Changing master password");
+    print_plain("  change <name>    - Changing entry password");
+    print_plain("  exit             - Exit the shell");
 }
 
 void Shell::cmd_exit() {
-    std::cout << "Exiting shell.\n";
+    print_success("Exiting shell.");
     running = false;
 }
-
-// In Shell.cpp, add the new command handler:
 
 void Shell::cmd_change_password() {
     std::string new_password, confirm_password;
@@ -153,7 +199,7 @@ void Shell::cmd_change_password() {
     std::getline(std::cin, new_password);
 
     if (new_password.empty()) {
-        std::cout << "Password cannot be empty.\n";
+        print_error("Password cannot be empty.");
         return;
     }
 
@@ -161,25 +207,25 @@ void Shell::cmd_change_password() {
     std::getline(std::cin, confirm_password);
 
     if (new_password != confirm_password) {
-        std::cout << "Passwords do not match.\n";
+        print_error("Passwords do not match.");
         return;
     }
 
     if (Vault::change_password(new_password)) {
-        std::cout << "Master password changed successfully.\n";
+        print_success("Master password changed successfully.");
     } else {
-        std::cout << "Failed to change master password.\n";
+        print_error("Failed to change master password.");
     }
 }
 
 void Shell::cmd_change_entry_password(const std::string& key) {
     if (key.empty()) {
-        std::cout << "Usage: cepw <site/website>\n";
+        print_info("Usage: change <name>");
         return;
     }
 
     if (!Vault::has_entry(key)) {
-        std::cout << "No such entry found.\n";
+        print_error("No such entry found.");
         return;
     }
 
@@ -188,18 +234,32 @@ void Shell::cmd_change_entry_password(const std::string& key) {
     std::getline(std::cin, new_password);
 
     if (new_password.empty()) {
-        std::cout << "Password cannot be empty.\n";
+        print_error("Password cannot be empty.");
         return;
     }
 
     Vault::set_entry(key, new_password);
     if (!Vault::save()) {
-        std::cout << "Failed to save vault.\n";
+        print_error("Failed to save vault.");
         return;
     }
 
-    std::cout << "Password for '" << key << "' updated successfully.\n";
+    print_success("Password for '" + key + "' updated successfully.");
 }
 
+// Helper functions
+void Shell::print_error(const std::string& message) {
+    std::cout << COLOR_ERROR << message << COLOR_RESET << std::endl;
+}
 
+void Shell::print_info(const std::string& message) {
+    std::cout << COLOR_INFO << message << COLOR_RESET << std::endl;
+}
 
+void Shell::print_success(const std::string& message) {
+    std::cout << COLOR_SUCCESS << message << COLOR_RESET << std::endl;
+}
+
+void Shell::print_plain(const std::string& message) {
+    std::cout << COLOR_PLAIN << message << COLOR_RESET << std::endl;
+}

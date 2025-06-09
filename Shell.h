@@ -21,7 +21,10 @@ private:
     static void cmd_change_password();
     static void cmd_change_entry_password(const std::string& key);
     static void cmd_exit();
-
+    static void print_error(const std::string& message);
+    static void print_info(const std::string& message);
+    static void print_success(const std::string& message);
+    static void print_plain(const std::string& message);
     // Flag to track if shell should keep running
     static bool running;
 };

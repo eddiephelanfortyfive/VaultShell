@@ -5,14 +5,15 @@
 
 #include <utility>
 #include "external/nlohmann/json.hpp"
-VaultEntry::VaultEntry(std::string n, std::string val, std::string nonce_val,
+VaultEntry::VaultEntry(std::string n, std::string val, std::string usern, std::string nonce_val,
                        std::string created, std::string updated)
-    : name(std::move(n)), value(std::move(val)), nonce(std::move(nonce_val)), created_at(std::move(created)), updated_at(std::move(updated)) {}
+    : name(std::move(n)), value(std::move(val)),  username(std::move(usern)),  nonce(std::move(nonce_val)), created_at(std::move(created)), updated_at(std::move(updated)) {}
 
 nlohmann::json VaultEntry::to_json() const {
     return {
             {"name", name},
             {"value", value},
+            {"username", username},
             {"nonce", nonce},
             {"created_at", created_at},
             {"updated_at", updated_at}
@@ -23,6 +24,7 @@ VaultEntry VaultEntry::from_json(const nlohmann::json& j) {
     return VaultEntry{
         j.at("name").get<std::string>(),
         j.at("value").get<std::string>(),
+        j.at("username").get<std::string>(),
         j.at("nonce").get<std::string>(),
         j.at("created_at").get<std::string>(),
         j.at("updated_at").get<std::string>()

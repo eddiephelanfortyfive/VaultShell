@@ -11,13 +11,14 @@
 class VaultEntry {
 public:
     std::string name;
+    std::string username;
     std::string value;
     std::string nonce;
     std::string created_at;
     std::string updated_at;
 
     VaultEntry() = default;
-    VaultEntry(std::string  n, std::string  val, std::string  nonce_val,
+    VaultEntry(std::string  n, std::string  val, std::string usern, std::string  nonce_val,
                std::string  created, std::string  updated);
 
     [[nodiscard]] nlohmann::json to_json() const;

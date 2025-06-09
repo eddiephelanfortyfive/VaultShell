@@ -33,6 +33,7 @@ set(SOURCES
         src/utils/Base64.cpp
         src/models/VaultEntry.cpp
         src/models/VaultCrypto.cpp
+        include/utils/colours.h
 )
 
 add_executable(VaultShell

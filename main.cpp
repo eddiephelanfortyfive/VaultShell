@@ -4,21 +4,19 @@
 #include <iostream>
 #include "Shell.h"
 #include "vault/Vault.h"
-
+#include "utils/colours.h"
 
 int main() {
-    std::cout << "🔐 Welcome to my VaultShell!" << std::endl;
-
     try {
         if (!Vault::load_or_initialize()) {
-            std::cerr << "🚨Failed to Initialise vault🚨" << std::endl;
+            std::cerr << COLOR_ERROR << "🚨Failed to Initialise vault🚨" << COLOR_ERROR <<std::endl;
             return 1;
         }
 
         Shell::run();
 
     } catch (const std::exception& ex) {
-        std::cerr << "⚠️ Error: " << ex.what() << "⚠️"<< std::endl;
+        std::cerr << COLOR_ERROR << "⚠️ Error: " << ex.what() << "⚠️"<< COLOR_ERROR << std::endl;
         return 1;
     }
 
