@@ -2,24 +2,24 @@
 // Created by eddie phelan on 08/06/2025.
 //
 #include <iostream>
-// #include "shell.hpp"
-// #include "vault/vault.hpp"
+#include "Shell.h"
+#include "vault/Vault.h"
+
 
 int main() {
-    std::cout << "🔐 Welcome to SecureVaultShell!" << std::endl;
+    std::cout << "🔐 Welcome to my VaultShell!" << std::endl;
 
     try {
-        // Initialize or unlock the vault
         if (!Vault::load_or_initialize()) {
-            std::cerr << "Failed to Initialise vault" << std::endl;
+            std::cerr << "🚨Failed to Initialise vault🚨" << std::endl;
             return 1;
         }
 
-        // Start shell loop
         Shell shell;
         shell.run();
+
     } catch (const std::exception& ex) {
-        std::cerr << "⚠️ Error: " << ex.what() << std::endl;
+        std::cerr << "⚠️ Error: " << ex.what() << "⚠️"<< std::endl;
         return 1;
     }
 

@@ -2,7 +2,13 @@
 // Created by eddie phelan on 08/06/2025.
 //
 
-#ifndef SHELL_H
-#define SHELL_H
+#ifndef SHELL_HPP
+#define SHELL_HPP
 
-#endif //SHELL_H
+class Shell {
+public:
+    static void run();
+};
+
+#endif // SHELL_HPP
+
