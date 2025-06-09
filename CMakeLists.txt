@@ -18,20 +18,20 @@ include_directories(${ARGON2_INCLUDE_DIR})
 
 set(HEADERS
         Shell.h
-        vault/Vault.h
-        utils/Base64.h
-        models/KEKInfo.h
-        models/VaultEntry.h
-        crypto/Crypto.h
+        src/vault/Vault.h
+        src/utils/Base64.h
+        src/models/KEKInfo.h
+        src/models/VaultEntry.h
+        src/crypto/Crypto.h
 )
 
 set(SOURCES
         main.cpp
         Shell.cpp
-        vault/Vault.cpp
-        crypto/Crypto.cpp
-        utils/Base64.cpp
-        models/VaultEntry.cpp
+        src/vault/Vault.cpp
+        src/crypto/Crypto.cpp
+        src/utils/Base64.cpp
+        src/models/VaultEntry.cpp
 )
 
 add_executable(VaultShell

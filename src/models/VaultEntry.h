@@ -6,7 +6,7 @@
 #define VAULT_ENTRY_H
 
 #include <string>
-#include <../nlohmann/json.hpp> // for JSON serialization
+#include <external/nlohmann/json.hpp>
 
 class VaultEntry {
 public:

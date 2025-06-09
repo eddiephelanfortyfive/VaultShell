@@ -2,7 +2,7 @@
 // Created by eddie phelan on 09/06/2025.
 //
 #include "VaultEntry.h"
-
+#include "external/nlohmann/json.hpp"
 VaultEntry::VaultEntry(const std::string &n, const std::string &val, const std::string &nonce_val,
                        const std::string &created, const std::string &updated)
     : name(n), value(val), nonce(nonce_val), created_at(created), updated_at(updated) {}
