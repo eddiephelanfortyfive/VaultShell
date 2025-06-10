@@ -11,16 +11,12 @@ find_package(Argon2 QUIET)
 
 if (Argon2_FOUND)
     message(STATUS "Found system-wide Argon2")
-    include_directories(${ARGON2_INCLUDE_DIR})
-    set(ARGON2_LIB_ARG ${ARGON2_LIB})
+    include_directories(${Argon2_INCLUDE_DIRS})
+    set(ARGON2_LIBRARIES ${Argon2_LIBRARIES})
 else()
-    message(WARNING "System-wide Argon2 NOT found, using local Argon2 path")
+    message(WARNING "System-wide Argon2 NOT found, trying local config...")
 
-    set(ARGON2_INCLUDE_DIR "/absolute/path/to/your/local/argon2/include")
-    set(ARGON2_LIB "/absolute/path/to/your/local/argon2/libargon2.a")
-
-    include_directories(${ARGON2_INCLUDE_DIR})
-    set(ARGON2_LIB_ARG ${ARGON2_LIB})
+    include(${CMAKE_SOURCE_DIR}/local_config.cmake)
 endif()
 
 set(HEADERS
@@ -53,5 +49,5 @@ add_executable(VaultShell
 target_link_libraries(VaultShell
         OpenSSL::SSL
         OpenSSL::Crypto
-        ${ARGON2_LIB_ARG}
+        ${ARGON2_LIBRARIES}
 )

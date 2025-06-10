@@ -20,12 +20,14 @@ public:
     static bool encrypt_with_kek(
         const std::vector<uint8_t>& kek,
         const std::string& plaintext,
+        const std::string& aad,
         std::string& out_enc_base64,
         std::string& out_nonce_base64);
 
     static bool decrypt_with_kek(
         const std::vector<uint8_t>& kek,
         const std::string& enc_base64,
+        const std::string& aad,
         const std::string& nonce_base64,
         std::string& out_plaintext);
 

@@ -66,7 +66,7 @@ std::vector<uint8_t> Crypto::generate_kek() {
 
 
 bool Crypto::encrypt_kek_with_master(const std::string& master_key_base64, std::string& out_enc_kek, std::string& out_nonce) {
-    auto master_key = Base64::decode(master_key_base64); // Decode master key to bytes
+    auto master_key = Base64::decode(master_key_base64);
 
     std::vector<uint8_t> kek = generate_kek();
     std::vector<uint8_t> nonce = generate_nonce();
@@ -169,6 +169,7 @@ bool Crypto::aes_gcm_decrypt(const std::vector<uint8_t>& key,
 bool Crypto::encrypt_with_kek(
     const std::vector<uint8_t>& kek,
     const std::string& plaintext,
+    const std::string& aad,
     std::string& out_enc_base64,
     std::string& out_nonce_base64)
 {
@@ -176,12 +177,12 @@ bool Crypto::encrypt_with_kek(
 
     std::vector<uint8_t> plaintext_bytes(plaintext.begin(), plaintext.end());
 
-    std::vector<uint8_t> aad;
+    std::vector<uint8_t> base64_aad = Base64::decode(aad);
 
     std::vector<uint8_t> ciphertext;
     std::vector<uint8_t> tag;
 
-    bool success = aes_gcm_encrypt(kek, nonce, plaintext_bytes, aad, ciphertext, tag);
+    bool success = aes_gcm_encrypt(kek, nonce, plaintext_bytes, base64_aad, ciphertext, tag);
     if (!success) {
         return false;
     }
@@ -197,6 +198,7 @@ bool Crypto::encrypt_with_kek(
 bool Crypto::decrypt_with_kek(
     const std::vector<uint8_t>& kek,
     const std::string& enc_base64,
+    const std::string& aad,
     const std::string& nonce_base64,
     std::string& out_plaintext)
 {
@@ -210,11 +212,11 @@ bool Crypto::decrypt_with_kek(
     std::vector<uint8_t> ciphertext(ciphertext_tag.begin(), ciphertext_tag.end() - 16);
     std::vector<uint8_t> tag(ciphertext_tag.end() - 16, ciphertext_tag.end());
 
-    std::vector<uint8_t> aad;
+    std::vector<uint8_t> base64_aad = Base64::decode(aad);
 
     std::vector<uint8_t> plaintext_bytes;
 
-    bool success = aes_gcm_decrypt(kek, nonce, ciphertext, aad, tag, plaintext_bytes);
+    bool success = aes_gcm_decrypt(kek, nonce, ciphertext, base64_aad, tag, plaintext_bytes);
     if (!success) {
         return false;
     }

@@ -162,7 +162,7 @@ void Vault::set_entry(const std::string& key, const std::string& value) {
     }
 
     std::string encrypted_value, nonce_val;
-    if (!Crypto::encrypt_with_kek(Base64::decode(kek), value, encrypted_value, nonce_val)) {
+    if (!Crypto::encrypt_with_kek(Base64::decode(kek), value, key, encrypted_value,  nonce_val)) {
         std::cerr << "Failed to encrypt entry value.\n";
         return;
     }
@@ -193,7 +193,7 @@ std::string Vault::get_entry(const std::string& key) {
 
     std::string decrypted_value;
 
-    if (!Crypto::decrypt_with_kek(Base64::decode(kek), encrypted_value, nonce_val, decrypted_value)) {
+    if (!Crypto::decrypt_with_kek(Base64::decode(kek), encrypted_value, key,  nonce_val, decrypted_value)) {
         std::cerr << "Failed to decrypt entry.\n";
         return {};
     }
@@ -305,7 +305,7 @@ bool Vault::change_entry_password(const std::string& key, const std::string& new
     }
 
     std::string encrypted_value, nonce_val;
-    if (!Crypto::encrypt_with_kek(Base64::decode(kek), new_password, encrypted_value, nonce_val)) {
+    if (!Crypto::encrypt_with_kek(Base64::decode(kek), new_password, key, encrypted_value, nonce_val)) {
         std::cerr << "Failed to encrypt new password for entry.\n";
         return false;
     }
