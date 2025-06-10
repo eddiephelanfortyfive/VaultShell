@@ -3,6 +3,7 @@
 #include "Shell.h"
 #include "vault/Vault.h"
 #include "utils/colours.h"
+#include "utils/input.h"
 #include <iomanip>
 #include <iostream>
 #include <sstream>
@@ -14,9 +15,7 @@ void Shell::run() {
     print_info("Welcome to the Vault Shell.");
 
     while (true) {
-        print_plain("Enter master password: ");
-        std::string password;
-        std::getline(std::cin, password);
+        std::string password = get_hidden_input("Enter master password: ");
 
         if (password.empty()) {
             print_error("Password cannot be empty. Try again.");
@@ -263,3 +262,5 @@ void Shell::print_success(const std::string& message) {
 void Shell::print_plain(const std::string& message) {
     std::cout << COLOR_PLAIN << message << COLOR_RESET << std::endl;
 }
+
+

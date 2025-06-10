@@ -8,7 +8,6 @@
 
 class Shell {
 public:
-    // Starts the shell, prompts for password, then runs command loop if unlocked
     static void run();
 
 private:
@@ -25,7 +24,7 @@ private:
     static void print_info(const std::string& message);
     static void print_success(const std::string& message);
     static void print_plain(const std::string& message);
-    // Flag to track if shell should keep running
+
     static bool running;
 };
 

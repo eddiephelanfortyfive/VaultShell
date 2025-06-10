@@ -23,6 +23,8 @@ set(HEADERS
         include/models/VaultCrypto.h
         include/models/VaultEntry.h
         include/crypto/Crypto.h
+        include/utils/colours.h
+        include/utils/input.h
 )
 
 set(SOURCES
@@ -33,7 +35,7 @@ set(SOURCES
         src/utils/Base64.cpp
         src/models/VaultEntry.cpp
         src/models/VaultCrypto.cpp
-        include/utils/colours.h
+        src/utils/input.cpp
 )
 
 add_executable(VaultShell
