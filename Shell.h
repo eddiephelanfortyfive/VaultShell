@@ -24,7 +24,7 @@ private:
     static void print_info(const std::string& message);
     static void print_success(const std::string& message);
     static void print_plain(const std::string& message);
-
+    static void cmd_search(const std::string& query);
     static bool running;
 };
 

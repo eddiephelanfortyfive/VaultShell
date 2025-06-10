@@ -63,7 +63,9 @@ void Shell::process_command(const std::string& command) {
         cmd_change_password();
     } else if (cmd == "change" && !arg.empty()) {
         cmd_change_entry_password(arg);
-    } else {
+    }else if (cmd == "search") {
+        cmd_search(arg);
+    }else {
         print_error("Unknown command: " + cmd);
         print_info("Type 'help' for a list of commands.");
     }
@@ -124,6 +126,11 @@ void Shell::cmd_add(const std::string& name) {
         return;
     }
 
+    if (Vault::has_entry(name)) {
+        print_error("An entry with the name '" + name + "' already exists.");
+        return;
+    }
+
     std::string username, password;
 
     std::cout << "Enter username for '" << name << "': ";
@@ -142,7 +149,6 @@ void Shell::cmd_add(const std::string& name) {
         return;
     }
 
-    // Store as "username:password" (or you can JSON structure this if you want richer storage)
     std::string value = username + ":" + password;
 
     Vault::set_entry(name, value);
@@ -152,6 +158,7 @@ void Shell::cmd_add(const std::string& name) {
     }
     print_success("Entry '" + name + "' added.");
 }
+
 
 
 void Shell::cmd_delete(const std::string& key) {
@@ -178,9 +185,9 @@ void Shell::cmd_delete(const std::string& key) {
 void Shell::cmd_help() {
     print_plain("Available commands:");
     print_plain("  ls               - List all entries");
+    print_plain("  search <name>    - Search for entries by name");
     print_plain("  add <name>       - Add a new entry");
     print_plain("  delete <name>    - Delete an entry");
-    print_plain("  help             - Show this help message");
     print_plain("  change           - Changing master password");
     print_plain("  change <name>    - Changing entry password");
     print_plain("  exit             - Exit the shell");
@@ -245,6 +252,47 @@ void Shell::cmd_change_entry_password(const std::string& key) {
 
     print_success("Password for '" + key + "' updated successfully.");
 }
+
+void Shell::cmd_search(const std::string& query) {
+    if (query.empty()) {
+        print_info("Usage: search <partial_name>");
+        return;
+    }
+
+    auto keys = Vault::list_keys();
+    std::vector<std::string> matches;
+
+    for (const auto& key : keys) {
+        if (key.find(query) != std::string::npos) {
+            matches.push_back(key);
+        }
+    }
+
+    if (matches.empty()) {
+        print_error("No entries matching '" + query + "' found.");
+        return;
+    }
+
+    print_success("Entries matching '" + query + "':");
+    for (const auto& match : matches) {
+        std::string value = Vault::get_entry(match);
+        std::string username, password;
+
+        size_t delim_pos = value.find(':');
+        if (delim_pos != std::string::npos) {
+            username = value.substr(0, delim_pos);
+            password = value.substr(delim_pos + 1);
+        } else {
+            username = "(unknown)";
+            password = "(unknown)";
+        }
+
+        std::ostringstream oss;
+        oss << "Name: " << match << " | Username: " << username << " | Password: " << password;
+        print_plain(oss.str());
+    }
+}
+
 
 // Helper functions
 void Shell::print_error(const std::string& message) {
