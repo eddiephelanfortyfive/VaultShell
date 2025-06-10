@@ -160,7 +160,6 @@ void Vault::set_entry(const std::string& key, const std::string& value) {
         std::cerr << "Vault is locked. Unlock it first.\n";
         return;
     }
-
     std::string encrypted_value, nonce_val;
     if (!Crypto::encrypt_with_kek(Base64::decode(kek), value, key, encrypted_value,  nonce_val)) {
         std::cerr << "Failed to encrypt entry value.\n";

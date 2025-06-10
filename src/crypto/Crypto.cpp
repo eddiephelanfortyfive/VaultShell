@@ -177,12 +177,12 @@ bool Crypto::encrypt_with_kek(
 
     std::vector<uint8_t> plaintext_bytes(plaintext.begin(), plaintext.end());
 
-    std::vector<uint8_t> base64_aad = Base64::decode(aad);
+    std::vector<uint8_t> aad_bytes(aad.begin(), aad.end());
 
     std::vector<uint8_t> ciphertext;
     std::vector<uint8_t> tag;
 
-    bool success = aes_gcm_encrypt(kek, nonce, plaintext_bytes, base64_aad, ciphertext, tag);
+    bool success = aes_gcm_encrypt(kek, nonce, plaintext_bytes, aad_bytes, ciphertext, tag);
     if (!success) {
         return false;
     }
@@ -212,11 +212,11 @@ bool Crypto::decrypt_with_kek(
     std::vector<uint8_t> ciphertext(ciphertext_tag.begin(), ciphertext_tag.end() - 16);
     std::vector<uint8_t> tag(ciphertext_tag.end() - 16, ciphertext_tag.end());
 
-    std::vector<uint8_t> base64_aad = Base64::decode(aad);
+    std::vector<uint8_t> aad_bytes(aad.begin(), aad.end());
 
     std::vector<uint8_t> plaintext_bytes;
 
-    bool success = aes_gcm_decrypt(kek, nonce, ciphertext, base64_aad, tag, plaintext_bytes);
+    bool success = aes_gcm_decrypt(kek, nonce, ciphertext, aad_bytes, tag, plaintext_bytes);
     if (!success) {
         return false;
     }
