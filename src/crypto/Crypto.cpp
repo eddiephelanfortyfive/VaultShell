@@ -4,7 +4,6 @@
 #include <argon2.h>
 #include <vector>
 #include <openssl/rand.h>
-#include <limits>
 #include <cassert>
 #include "crypto/Crypto.h"
 #include "utils/Base64.h"
