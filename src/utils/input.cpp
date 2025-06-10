@@ -1,7 +1,6 @@
 //
 // Created by eddie phelan on 10/06/2025.
 //
-// utils/input.cpp
 #include "utils/input.h"
 #include <iostream>
 

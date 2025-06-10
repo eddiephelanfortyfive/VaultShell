@@ -4,6 +4,8 @@
 #include <argon2.h>
 #include <vector>
 #include <openssl/rand.h>
+#include <limits>
+#include <cassert>
 #include "crypto/Crypto.h"
 #include "utils/Base64.h"
 
@@ -113,15 +115,15 @@ bool Crypto::aes_gcm_encrypt(const std::vector<uint8_t>& key,
     if (1 != EVP_EncryptInit_ex(ctx, EVP_aes_256_gcm(), nullptr, nullptr, nullptr))
         return false;
 
-    EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_SET_IVLEN, nonce.size(), nullptr);
+    EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_SET_IVLEN, static_cast<int>(nonce.size()), nullptr);
     EVP_EncryptInit_ex(ctx, nullptr, nullptr, key.data(), nonce.data());
 
     int len;
     if (!aad.empty())
-        EVP_EncryptUpdate(ctx, nullptr, &len, aad.data(), aad.size());
+        EVP_EncryptUpdate(ctx, nullptr, &len, aad.data(), static_cast<int>(aad.size()));
 
     ciphertext.resize(plaintext.size());
-    EVP_EncryptUpdate(ctx, ciphertext.data(), &len, plaintext.data(), plaintext.size());
+    EVP_EncryptUpdate(ctx, ciphertext.data(), &len, plaintext.data(), static_cast<int>(plaintext.size()));
 
     int ciphertext_len = len;
     EVP_EncryptFinal_ex(ctx, ciphertext.data() + len, &len);
@@ -147,17 +149,17 @@ bool Crypto::aes_gcm_decrypt(const std::vector<uint8_t>& key,
     if (1 != EVP_DecryptInit_ex(ctx, EVP_aes_256_gcm(), nullptr, nullptr, nullptr))
         return false;
 
-    EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_SET_IVLEN, nonce.size(), nullptr);
+    EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_SET_IVLEN, static_cast<int>(nonce.size()), nullptr);
     EVP_DecryptInit_ex(ctx, nullptr, nullptr, key.data(), nonce.data());
 
     int len;
     if (!aad.empty())
-        EVP_DecryptUpdate(ctx, nullptr, &len, aad.data(), aad.size());
+        EVP_DecryptUpdate(ctx, nullptr, &len, aad.data(), static_cast<int>(aad.size()));
 
     plaintext.resize(ciphertext.size());
-    EVP_DecryptUpdate(ctx, plaintext.data(), &len, ciphertext.data(), ciphertext.size());
+    EVP_DecryptUpdate(ctx, plaintext.data(), &len, ciphertext.data(), static_cast<int>(ciphertext.size()));
 
-    EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_SET_TAG, tag.size(), const_cast<uint8_t*>(tag.data()));
+    EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_SET_TAG, static_cast<int>(tag.size()), const_cast<uint8_t*>(tag.data()));
 
     int ret = EVP_DecryptFinal_ex(ctx, plaintext.data() + len, &len);
     EVP_CIPHER_CTX_free(ctx);

@@ -17,7 +17,6 @@ public:
     static bool decrypt_kek_with_master(const std::string& master_key, const std::string& enc_kek, const std::string& nonce);
     static std::vector<uint8_t> generate_kek();
 
-    // New generic encrypt/decrypt functions using KEK
     static bool encrypt_with_kek(
         const std::vector<uint8_t>& kek,
         const std::string& plaintext,
