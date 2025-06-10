@@ -3,18 +3,25 @@ project(VaultShell)
 
 set(CMAKE_CXX_STANDARD 20)
 
-# Include local headers
 include_directories(include)
 
-# Find OpenSSL
 find_package(OpenSSL REQUIRED)
 
-# Argon2 library and include paths (adjust if needed)
-set(ARGON2_INCLUDE_DIR "/opt/homebrew/Cellar/argon2/20190702_1/include" CACHE PATH "Argon2 include dir")
-set(ARGON2_LIB "/opt/homebrew/Cellar/argon2/20190702_1/lib/libargon2.dylib" CACHE FILEPATH "Argon2 library path")
+find_package(Argon2 QUIET)
 
-# Include Argon2 headers
-include_directories(${ARGON2_INCLUDE_DIR})
+if (Argon2_FOUND)
+    message(STATUS "Found system-wide Argon2")
+    include_directories(${ARGON2_INCLUDE_DIR})
+    set(ARGON2_LIB_ARG ${ARGON2_LIB})
+else()
+    message(WARNING "System-wide Argon2 NOT found, using local Argon2 path")
+
+    set(ARGON2_INCLUDE_DIR "/absolute/path/to/your/local/argon2/include")
+    set(ARGON2_LIB "/absolute/path/to/your/local/argon2/libargon2.a")
+
+    include_directories(${ARGON2_INCLUDE_DIR})
+    set(ARGON2_LIB_ARG ${ARGON2_LIB})
+endif()
 
 set(HEADERS
         Shell.h
@@ -43,9 +50,8 @@ add_executable(VaultShell
         ${SOURCES}
 )
 
-# Link OpenSSL and Argon2 libraries
 target_link_libraries(VaultShell
         OpenSSL::SSL
         OpenSSL::Crypto
-        ${ARGON2_LIB}
+        ${ARGON2_LIB_ARG}
 )
